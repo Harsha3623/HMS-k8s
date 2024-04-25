@@ -1,0 +1,416 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment-hms
+  labels:
+    app: mysql-hms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-hms
+  template:
+    metadata:
+      labels:
+        app: mysql-hms
+    spec:
+      containers:
+        - name: mysql-hms
+          image: mysql:5.7
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: db-secret-1
+          volumeMounts:
+            - name: mysql-initdb-hms
+              mountPath: /docker-entrypoint-initdb.d
+            - mountPath: "/var/lib/mysql"
+              subPath: "mysql"
+              name: mysql-data-hms
+      volumes:
+        - name: mysql-initdb-hms
+          configMap:
+            name: mysql-initdb-config-hms
+        - name: mysql-data-hms
+          persistentVolumeClaim:
+            claimName: mysql-data-disk-2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config-hms
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS hms;
+    USE hms;
+    CREATE TABLE administrator ( ha_id int(10) NOT NULL, f_name varchar(20) DEFAULT NULL, l_name varchar(20) DEFAULT NULL, username varchar(20) NOT NULL, mobile varchar(20) NOT NULL, password varchar(20) NOT NULL);
+    INSERT INTO administrator VALUES (1, 'HPN', 'Project', 'admin', '8909786756', 'admin');
+    CREATE TABLE application ( application_no int(10) NOT NULL, student_id varchar(20) DEFAULT NULL, room_id int(20) DEFAULT NULL, hm_id int(20) DEFAULT NULL, message varchar(1000) DEFAULT NULL, status tinyint(1) DEFAULT NULL);
+    INSERT INTO application VALUES (18, '4GH20CS001', 334, 3, 'I need 1st floor', 1);
+    INSERT INTO application VALUES (19, '4GH20CS020', 353, 3, '', 1);
+    INSERT INTO application VALUES (20, '4GH20CS005', 354, 3, 'Please give me room in 2nd floor.', 1);
+    CREATE TABLE hostel ( hostel_id int(10) NOT NULL, hostel_name varchar(20) NOT NULL, no_of_rooms int(5) DEFAULT NULL, no_of_students int(5) DEFAULT NULL, accepted_gen int(2) DEFAULT NULL);
+    INSERT INTO hostel VALUES (1, 'A', 100, 100, 1);
+    INSERT INTO hostel VALUES (2, 'B', 200, 200, 1);
+    INSERT INTO hostel VALUES (3, 'C', 200, 200, 1);
+    INSERT INTO hostel VALUES (4, 'D', 300, 300, 1);
+    INSERT INTO hostel VALUES (5, 'E', 200, 200, 1);
+    INSERT INTO hostel VALUES (6, 'F', 200, 200, 1);
+    CREATE TABLE hostel_manager ( hm_id int(10) NOT NULL, f_name varchar(20) DEFAULT NULL, l_name varchar(20) DEFAULT NULL, username varchar(20) NOT NULL, mobile varchar(20) NOT NULL, password varchar(20) NOT NULL, admin int(10) DEFAULT NULL, hostel_id int(10) DEFAULT NULL);
+    INSERT INTO hostel_manager VALUES (3, 'Harsha', 'B', 'hostelC', '9878987898', '1234', 1, 3);
+    INSERT INTO hostel_manager VALUES (4, 'prasanna', 'B', 'hostelD', '8796578978', '1234', 1, 4);
+    INSERT INTO hostel_manager VALUES (5, 'Hareesh', 'K', 'hostelE', '08547703798', '1234', 1, 5);
+    CREATE TABLE messages ( msg_id int(10) NOT NULL, hm_id int(10) DEFAULT NULL, student_id varchar(20) DEFAULT NULL, subject varchar(100) DEFAULT NULL, message varchar(1000) DEFAULT NULL, time_stamp datetime DEFAULT NULL, sender tinyint(1) DEFAULT NULL);
+    CREATE TABLE mobile_number ( student_id varchar(20) NOT NULL, mobile varchar(20) NOT NULL);
+    CREATE TABLE room ( room_id int(10) NOT NULL, room_no int(5) DEFAULT NULL, hostel_id int(10) DEFAULT NULL, allocated tinyint(1) DEFAULT NULL);
+    INSERT INTO room VALUES (1, 100, 2, 0);
+    INSERT INTO room VALUES (2, 101, 2, 0);
+    INSERT INTO room VALUES (3, 110, 1, 0);
+    INSERT INTO room VALUES (4, 111, 1, 0);
+    INSERT INTO room VALUES (203, 112, 1, 0);
+    INSERT INTO room VALUES (204, 113, 1, 0);
+    INSERT INTO room VALUES (205, 114, 1, 0);
+    INSERT INTO room VALUES (206, 115, 1, 0);
+    INSERT INTO room VALUES (207, 116, 1, 0);
+    INSERT INTO room VALUES (208, 117, 1, 0);
+    INSERT INTO room VALUES (209, 118, 1, 0);
+    INSERT INTO room VALUES (210, 119, 1, 0);
+    INSERT INTO room VALUES (211, 120, 1, 0);
+    INSERT INTO room VALUES (212, 121, 1, 0);
+    INSERT INTO room VALUES (213, 122, 1, 0);
+    INSERT INTO room VALUES (214, 123, 1, 0);
+    INSERT INTO room VALUES (215, 124, 1, 0);
+    INSERT INTO room VALUES (216, 125, 1, 0);
+    INSERT INTO room VALUES (217, 126, 1, 0);
+    INSERT INTO room VALUES (218, 127, 1, 0);
+    INSERT INTO room VALUES (219, 128, 1, 0);
+    INSERT INTO room VALUES (220, 129, 1, 0);
+    INSERT INTO room VALUES (221, 130, 1, 0);
+    INSERT INTO room VALUES (222, 131, 1, 0);
+    INSERT INTO room VALUES (223, 132, 1, 0);
+    INSERT INTO room VALUES (224, 133, 1, 0);
+    INSERT INTO room VALUES (230, 110, 2, 0);
+    INSERT INTO room VALUES (231, 111, 2, 0);
+    INSERT INTO room VALUES (232, 112, 2, 0);
+    INSERT INTO room VALUES (233, 113, 2, 0);
+    INSERT INTO room VALUES (234, 114, 2, 0);
+    INSERT INTO room VALUES (235, 115, 2, 0);
+    INSERT INTO room VALUES (236, 116, 2, 0);
+    INSERT INTO room VALUES (237, 117, 2, 0);
+    INSERT INTO room VALUES (238, 118, 2, 0);
+    INSERT INTO room VALUES (239, 119, 2, 0);
+    INSERT INTO room VALUES (240, 120, 2, 0);
+    INSERT INTO room VALUES (241, 121, 2, 0);
+    INSERT INTO room VALUES (242, 122, 2, 0);
+    INSERT INTO room VALUES (243, 123, 2, 0);
+    INSERT INTO room VALUES (244, 124, 2, 0);
+    INSERT INTO room VALUES (245, 125, 2, 0);
+    INSERT INTO room VALUES (246, 126, 2, 0);
+    INSERT INTO room VALUES (247, 127, 2, 0);
+    INSERT INTO room VALUES (248, 128, 2, 0);
+    INSERT INTO room VALUES (249, 129, 2, 0);
+    INSERT INTO room VALUES (250, 130, 2, 0);
+    INSERT INTO room VALUES (251, 131, 2, 0);
+    INSERT INTO room VALUES (252, 132, 2, 0);
+    INSERT INTO room VALUES (253, 133, 2, 0);
+    INSERT INTO room VALUES (259, 210, 2, 0);
+    INSERT INTO room VALUES (260, 211, 2, 0);
+    INSERT INTO room VALUES (261, 212, 2, 0);
+    INSERT INTO room VALUES (262, 213, 2, 0);
+    INSERT INTO room VALUES (263, 214, 2, 0);
+    INSERT INTO room VALUES (264, 215, 2, 0);
+    INSERT INTO room VALUES (265, 216, 2, 0);
+    INSERT INTO room VALUES (266, 217, 2, 0);
+    INSERT INTO room VALUES (267, 218, 2, 0);
+    INSERT INTO room VALUES (268, 219, 2, 0);
+    INSERT INTO room VALUES (269, 220, 2, 0);
+    INSERT INTO room VALUES (270, 221, 2, 0);
+    INSERT INTO room VALUES (271, 222, 2, 0);
+    INSERT INTO room VALUES (272, 223, 2, 0);
+    INSERT INTO room VALUES (273, 224, 2, 0);
+    INSERT INTO room VALUES (274, 225, 2, 0);
+    INSERT INTO room VALUES (275, 226, 2, 0);
+    INSERT INTO room VALUES (276, 227, 2, 0);
+    INSERT INTO room VALUES (277, 228, 2, 0);
+    INSERT INTO room VALUES (278, 229, 2, 0);
+    INSERT INTO room VALUES (279, 230, 2, 0);
+    INSERT INTO room VALUES (280, 231, 2, 0);
+    INSERT INTO room VALUES (281, 232, 2, 0);
+    INSERT INTO room VALUES (282, 233, 2, 0);
+    INSERT INTO room VALUES (288, 234, 2, 0);
+    INSERT INTO room VALUES (289, 235, 2, 0);
+    INSERT INTO room VALUES (290, 134, 1, 0);
+    INSERT INTO room VALUES (291, 135, 1, 0);
+    INSERT INTO room VALUES (292, 210, 1, 0);
+    INSERT INTO room VALUES (293, 211, 1, 0);
+    INSERT INTO room VALUES (294, 212, 1, 0);
+    INSERT INTO room VALUES (295, 213, 1, 0);
+    INSERT INTO room VALUES (296, 214, 1, 0);
+    INSERT INTO room VALUES (297, 215, 1, 0);
+    INSERT INTO room VALUES (298, 216, 1, 0);
+    INSERT INTO room VALUES (299, 217, 1, 0);
+    INSERT INTO room VALUES (300, 218, 1, 0);
+    INSERT INTO room VALUES (301, 219, 1, 0);
+    INSERT INTO room VALUES (302, 220, 1, 0);
+    INSERT INTO room VALUES (303, 221, 1, 0);
+    INSERT INTO room VALUES (304, 222, 1, 0);
+    INSERT INTO room VALUES (305, 223, 1, 0);
+    INSERT INTO room VALUES (306, 224, 1, 0);
+    INSERT INTO room VALUES (307, 225, 1, 0);
+    INSERT INTO room VALUES (308, 226, 1, 0);
+    INSERT INTO room VALUES (309, 227, 1, 0);
+    INSERT INTO room VALUES (310, 228, 1, 0);
+    INSERT INTO room VALUES (311, 229, 1, 0);
+    INSERT INTO room VALUES (312, 230, 1, 0);
+    INSERT INTO room VALUES (313, 231, 1, 0);
+    INSERT INTO room VALUES (314, 232, 1, 0);
+    INSERT INTO room VALUES (315, 233, 1, 0);
+    INSERT INTO room VALUES (316, 234, 1, 0);
+    INSERT INTO room VALUES (317, 235, 1, 0);
+    INSERT INTO room VALUES (318, 110, 3, 1);
+    INSERT INTO room VALUES (320, 236, 1, 0);
+    INSERT INTO room VALUES (322, 110, 3, 0);
+    INSERT INTO room VALUES (323, 111, 3, 0);
+    INSERT INTO room VALUES (324, 112, 3, 0);
+    INSERT INTO room VALUES (325, 113, 3, 0);
+    INSERT INTO room VALUES (326, 114, 3, 0);
+    INSERT INTO room VALUES (327, 115, 3, 0);
+    INSERT INTO room VALUES (328, 116, 3, 0);
+    INSERT INTO room VALUES (329, 117, 3, 1);
+    INSERT INTO room VALUES (330, 118, 3, 0);
+    INSERT INTO room VALUES (331, 119, 3, 0);
+    INSERT INTO room VALUES (332, 120, 3, 0);
+    INSERT INTO room VALUES (333, 121, 3, 0);
+    INSERT INTO room VALUES (334, 122, 3, 1);
+    INSERT INTO room VALUES (335, 123, 3, 0);
+    INSERT INTO room VALUES (336, 124, 3, 0);
+    INSERT INTO room VALUES (337, 125, 3, 0);
+    INSERT INTO room VALUES (338, 126, 3, 0);
+    INSERT INTO room VALUES (339, 127, 3, 0);
+    INSERT INTO room VALUES (340, 128, 3, 1);
+    INSERT INTO room VALUES (341, 129, 3, 1);
+    INSERT INTO room VALUES (342, 130, 3, 1);
+    INSERT INTO room VALUES (343, 131, 3, 1);
+    INSERT INTO room VALUES (344, 132, 3, 0);
+    INSERT INTO room VALUES (345, 133, 3, 0);
+    INSERT INTO room VALUES (346, 134, 3, 0);
+    INSERT INTO room VALUES (347, 135, 3, 0);
+    INSERT INTO room VALUES (348, 210, 3, 0);
+    INSERT INTO room VALUES (349, 211, 3, 0);
+    INSERT INTO room VALUES (350, 212, 3, 0);
+    INSERT INTO room VALUES (351, 213, 3, 0);
+    INSERT INTO room VALUES (352, 214, 3, 0);
+    INSERT INTO room VALUES (353, 215, 3, 1);
+    INSERT INTO room VALUES (354, 216, 3, 1);
+    INSERT INTO room VALUES (355, 217, 3, 0);
+    INSERT INTO room VALUES (356, 218, 3, 1);
+    INSERT INTO room VALUES (357, 219, 3, 0);
+    INSERT INTO room VALUES (358, 220, 3, 1);
+    INSERT INTO room VALUES (359, 221, 3, 0);
+    INSERT INTO room VALUES (360, 222, 3, 0);
+    INSERT INTO room VALUES (361, 223, 3, 0);
+    INSERT INTO room VALUES (362, 224, 3, 0);
+    INSERT INTO room VALUES (363, 225, 3, 0);
+    INSERT INTO room VALUES (364, 226, 3, 0);
+    INSERT INTO room VALUES (365, 227, 3, 0);
+    INSERT INTO room VALUES (366, 228, 3, 0);
+    INSERT INTO room VALUES (367, 229, 3, 0);
+    INSERT INTO room VALUES (368, 230, 3, 0);
+    INSERT INTO room VALUES (369, 231, 3, 0);
+    INSERT INTO room VALUES (370, 232, 3, 0);
+    INSERT INTO room VALUES (371, 233, 3, 0);
+    INSERT INTO room VALUES (372, 234, 3, 0);
+    INSERT INTO room VALUES (373, 235, 3, 0);
+    INSERT INTO room VALUES (374, 110, 4, 0);
+    INSERT INTO room VALUES (375, 111, 4, 0);
+    INSERT INTO room VALUES (376, 112, 4, 0);
+    INSERT INTO room VALUES (377, 113, 4, 0);
+    INSERT INTO room VALUES (378, 114, 4, 0);
+    INSERT INTO room VALUES (379, 115, 4, 0);
+    INSERT INTO room VALUES (380, 116, 4, 0);
+    INSERT INTO room VALUES (381, 117, 4, 0);
+    INSERT INTO room VALUES (382, 118, 4, 0);
+    INSERT INTO room VALUES (383, 119, 4, 0);
+    INSERT INTO room VALUES (384, 120, 4, 0);
+    INSERT INTO room VALUES (385, 121, 4, 0);
+    INSERT INTO room VALUES (386, 122, 4, 0);
+    INSERT INTO room VALUES (387, 123, 4, 0);
+    INSERT INTO room VALUES (388, 124, 4, 0);
+    INSERT INTO room VALUES (389, 125, 4, 0);
+    INSERT INTO room VALUES (390, 126, 4, 0);
+    INSERT INTO room VALUES (391, 127, 4, 0);
+    INSERT INTO room VALUES (392, 128, 4, 0);
+    INSERT INTO room VALUES (393, 129, 4, 0);
+    INSERT INTO room VALUES (394, 130, 4, 0);
+    INSERT INTO room VALUES (395, 131, 4, 0);
+    INSERT INTO room VALUES (396, 132, 4, 0);
+    INSERT INTO room VALUES (397, 133, 4, 0);
+    INSERT INTO room VALUES (398, 134, 4, 0);
+    INSERT INTO room VALUES (399, 135, 4, 0);
+    INSERT INTO room VALUES (400, 136, 4, 0);
+    INSERT INTO room VALUES (401, 137, 4, 0);
+    INSERT INTO room VALUES (402, 138, 4, 0);
+    INSERT INTO room VALUES (403, 210, 4, 0);
+    INSERT INTO room VALUES (404, 211, 4, 0);
+    INSERT INTO room VALUES (405, 212, 4, 0);
+    INSERT INTO room VALUES (406, 213, 4, 0);
+    INSERT INTO room VALUES (407, 214, 4, 0);
+    INSERT INTO room VALUES (408, 215, 4, 0);
+    INSERT INTO room VALUES (409, 216, 4, 0);
+    INSERT INTO room VALUES (410, 217, 4, 0);
+    INSERT INTO room VALUES (411, 218, 4, 0);
+    INSERT INTO room VALUES (412, 219, 4, 0);
+    INSERT INTO room VALUES (413, 220, 4, 0);
+    INSERT INTO room VALUES (414, 221, 4, 0);
+    INSERT INTO room VALUES (415, 222, 4, 0);
+    INSERT INTO room VALUES (416, 223, 4, 0);
+    INSERT INTO room VALUES (417, 224, 4, 0);
+    INSERT INTO room VALUES (418, 225, 4, 0);
+    INSERT INTO room VALUES (419, 226, 4, 0);
+    INSERT INTO room VALUES (420, 227, 4, 0);
+    INSERT INTO room VALUES (421, 228, 4, 0);
+    INSERT INTO room VALUES (422, 229, 4, 0);
+    INSERT INTO room VALUES (423, 230, 4, 0);
+    INSERT INTO room VALUES (424, 231, 4, 0);
+    INSERT INTO room VALUES (425, 232, 4, 0);
+    INSERT INTO room VALUES (426, 233, 4, 0);
+    INSERT INTO room VALUES (427, 234, 4, 0);
+    INSERT INTO room VALUES (428, 235, 4, 0);
+    INSERT INTO room VALUES (429, 236, 4, 0);
+    INSERT INTO room VALUES (430, 237, 4, 0);
+    INSERT INTO room VALUES (431, 238, 4, 0);
+    INSERT INTO room VALUES (432, 114, 5, 0);
+    INSERT INTO room VALUES (433, 115, 5, 0);
+    INSERT INTO room VALUES (434, 116, 5, 0);
+    INSERT INTO room VALUES (435, 117, 5, 0);
+    INSERT INTO room VALUES (436, 118, 5, 0);
+    INSERT INTO room VALUES (437, 119, 5, 0);
+    INSERT INTO room VALUES (438, 120, 5, 0);
+    INSERT INTO room VALUES (439, 121, 5, 0);
+    INSERT INTO room VALUES (440, 122, 5, 0);
+    INSERT INTO room VALUES (441, 123, 5, 0);
+    INSERT INTO room VALUES (442, 124, 5, 0);
+    INSERT INTO room VALUES (443, 125, 5, 0);
+    INSERT INTO room VALUES (444, 126, 5, 0);
+    INSERT INTO room VALUES (445, 127, 5, 0);
+    INSERT INTO room VALUES (446, 128, 5, 0);
+    INSERT INTO room VALUES (447, 129, 5, 0);
+    INSERT INTO room VALUES (448, 130, 5, 0);
+    INSERT INTO room VALUES (449, 131, 5, 0);
+    INSERT INTO room VALUES (450, 132, 5, 0);
+    INSERT INTO room VALUES (451, 133, 5, 0);
+    INSERT INTO room VALUES (452, 134, 5, 0);
+    INSERT INTO room VALUES (453, 135, 5, 0);
+    INSERT INTO room VALUES (454, 136, 5, 0);
+    INSERT INTO room VALUES (455, 137, 5, 0);
+    INSERT INTO room VALUES (456, 138, 5, 0);
+    INSERT INTO room VALUES (482, 214, 5, 0);
+    INSERT INTO room VALUES (483, 215, 5, 0);
+    INSERT INTO room VALUES (484, 216, 5, 0);
+    INSERT INTO room VALUES (485, 217, 5, 0);
+    INSERT INTO room VALUES (486, 218, 5, 0);
+    INSERT INTO room VALUES (487, 219, 5, 0);
+    INSERT INTO room VALUES (488, 220, 5, 0);
+    INSERT INTO room VALUES (489, 221, 5, 0);
+    INSERT INTO room VALUES (490, 222, 5, 0);
+    INSERT INTO room VALUES (491, 223, 5, 0);
+    INSERT INTO room VALUES (492, 224, 5, 0);
+    INSERT INTO room VALUES (493, 225, 5, 0);
+    INSERT INTO room VALUES (494, 226, 5, 0);
+    INSERT INTO room VALUES (495, 227, 5, 0);
+    INSERT INTO room VALUES (496, 228, 5, 0);
+    INSERT INTO room VALUES (497, 229, 5, 0);
+    INSERT INTO room VALUES (498, 230, 5, 0);
+    INSERT INTO room VALUES (499, 231, 5, 0);
+    INSERT INTO room VALUES (500, 232, 5, 0);
+    INSERT INTO room VALUES (501, 233, 5, 0);
+    INSERT INTO room VALUES (502, 234, 5, 0);
+    INSERT INTO room VALUES (503, 235, 5, 0);
+    INSERT INTO room VALUES (504, 236, 5, 0);
+    INSERT INTO room VALUES (505, 237, 5, 0);
+    INSERT INTO room VALUES (506, 238, 5, 0);
+    INSERT INTO room VALUES (507, 114, 6, 0);
+    INSERT INTO room VALUES (508, 115, 6, 0);
+    INSERT INTO room VALUES (509, 116, 6, 0);
+    INSERT INTO room VALUES (510, 117, 6, 0);
+    INSERT INTO room VALUES (511, 118, 6, 0);
+    INSERT INTO room VALUES (512, 119, 6, 0);
+    INSERT INTO room VALUES (513, 120, 6, 0);
+    INSERT INTO room VALUES (514, 121, 6, 0);
+    INSERT INTO room VALUES (515, 122, 6, 0);
+    INSERT INTO room VALUES (516, 123, 6, 0);
+    INSERT INTO room VALUES (517, 124, 6, 0);
+    INSERT INTO room VALUES (518, 125, 6, 0);
+    INSERT INTO room VALUES (519, 126, 6, 0);
+    INSERT INTO room VALUES (520, 127, 6, 0);
+    INSERT INTO room VALUES (521, 128, 6, 0);
+    INSERT INTO room VALUES (522, 129, 6, 0);
+    INSERT INTO room VALUES (523, 130, 6, 0);
+    INSERT INTO room VALUES (524, 131, 6, 0);
+    INSERT INTO room VALUES (525, 132, 6, 0);
+    INSERT INTO room VALUES (526, 133, 6, 0);
+    INSERT INTO room VALUES (527, 134, 6, 0);
+    INSERT INTO room VALUES (528, 135, 6, 0);
+    INSERT INTO room VALUES (529, 136, 6, 0);
+    INSERT INTO room VALUES (530, 137, 6, 0);
+    INSERT INTO room VALUES (531, 138, 6, 0);
+    INSERT INTO room VALUES (532, 214, 6, 0);
+    INSERT INTO room VALUES (533, 215, 6, 0);
+    INSERT INTO room VALUES (534, 216, 6, 0);
+    INSERT INTO room VALUES (535, 217, 6, 0);
+    INSERT INTO room VALUES (536, 218, 6, 0);
+    INSERT INTO room VALUES (537, 219, 6, 0);
+    INSERT INTO room VALUES (538, 220, 6, 0);
+    INSERT INTO room VALUES (539, 221, 6, 0);
+    INSERT INTO room VALUES (540, 222, 6, 0);
+    INSERT INTO room VALUES (541, 223, 6, 0);
+    INSERT INTO room VALUES (542, 224, 6, 0);
+    INSERT INTO room VALUES (543, 225, 6, 0);
+    INSERT INTO room VALUES (544, 226, 6, 0);
+    INSERT INTO room VALUES (545, 227, 6, 0);
+    INSERT INTO room VALUES (546, 228, 6, 0);
+    INSERT INTO room VALUES (547, 229, 6, 0);
+    INSERT INTO room VALUES (548, 230, 6, 0);
+    INSERT INTO room VALUES (549, 231, 6, 0);
+    INSERT INTO room VALUES (550, 232, 6, 0);
+    INSERT INTO room VALUES (551, 233, 6, 0);
+    INSERT INTO room VALUES (552, 234, 6, 0);
+    INSERT INTO room VALUES (553, 235, 6, 0);
+    INSERT INTO room VALUES (554, 236, 6, 0);
+    INSERT INTO room VALUES (555, 237, 6, 0);
+    INSERT INTO room VALUES (556, 238, 6, 0);
+    CREATE TABLE student ( student_id varchar(20) NOT NULL, f_name varchar(20) DEFAULT NULL, l_name varchar(20) DEFAULT NULL, year varchar(20) DEFAULT NULL, dept varchar(50) DEFAULT NULL, password varchar(20) NOT NULL, hostel_id int(20) DEFAULT NULL, room_id int(10) DEFAULT NULL, gender int(2) DEFAULT NULL, mobile varchar(10) DEFAULT NULL);
+    INSERT INTO student  VALUES ('4GH20CS021', 'Krishna', 'R', '3', 'CSE', '1234', 3, 329, 1, '8769876781');
+    INSERT INTO student  VALUES ('4GH20CS026', 'Nishanth', 'Rao', '3', 'CSE', '1234', 3, 328, 1, '8765980865');
+    INSERT INTO student  VALUES ('4GH20CS027', 'Charan', 'Raj', '3', 'CSE', '1234', 3, 343, 1, '7654789098');
+    INSERT INTO student  VALUES ('4GH20CS028', 'Abhijith', 'Pachat', '2', 'ECE', '1234', 3, 342, 1, '8769875678');
+    INSERT INTO student  VALUES ('4GH20CS030', 'Abhiram', 'g', '4', 'ECE', '1234', 3, 341, 1, '131124');
+    INSERT INTO student  VALUES ('4GH20CS035', 'Indrajith', 'T S', '3', 'CSE', '1234', 3, 356, 1, '8909876789');
+    INSERT INTO student  VALUES ('4GH20CS040', 'Abid', 'Ali K P', '3', 'CSE', '1234', 3, 358, 1, '8989767678');
+    INSERT INTO student  VALUES ('4GH20CS045', 'Athul', 'Krishna', '2', 'ECE', '1234', 3, 340, 1, '9876789098');
+    ALTER TABLE administrator ADD PRIMARY KEY (ha_id), ADD UNIQUE KEY username (username), ADD UNIQUE KEY mobile (mobile);
+    ALTER TABLE application ADD PRIMARY KEY (application_no), ADD KEY fk_application_hm_id (hm_id), ADD KEY fk_application_room_id (room_id), ADD KEY fk_application_student_id (student_id);
+    ALTER TABLE hostel ADD PRIMARY KEY (hostel_id), ADD UNIQUE KEY hostel_name (hostel_name);
+    ALTER TABLE hostel_manager ADD PRIMARY KEY (hm_id), ADD UNIQUE KEY mobile (mobile), ADD UNIQUE KEY username (username), ADD KEY fk_hostel_manager_admin (admin), ADD KEY fk_hostel_manager_hostel_id (hostel_id);
+    ALTER TABLE messages ADD PRIMARY KEY (msg_id), ADD KEY fk_messages_hm_id (hm_id), ADD KEY fk_messages_student_id (student_id);
+    ALTER TABLE mobile_number ADD PRIMARY KEY (student_id,mobile), ADD UNIQUE KEY mobile (mobile);
+    ALTER TABLE room ADD PRIMARY KEY (room_id), ADD KEY fk_room_hostel_id (hostel_id);
+    ALTER TABLE student ADD PRIMARY KEY (student_id), ADD KEY fk_student_hostel_id (hostel_id), ADD KEY fk_student_room_id (room_id);
+    ALTER TABLE administrator MODIFY ha_id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+    ALTER TABLE application MODIFY application_no int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+    ALTER TABLE hostel MODIFY hostel_id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+    ALTER TABLE hostel_manager MODIFY hm_id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+    ALTER TABLE messages MODIFY msg_id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+    ALTER TABLE room MODIFY room_id int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=557;
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-data-disk-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
